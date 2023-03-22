@@ -21,3 +21,6 @@
 export CLASH_URL=''
 export SECRET=''
 ```
+
+## untrack file.
+一些数据不应该被同步在git上，所以在新clone的repo中，需要run `untrack.sh`. 
