@@ -13,6 +13,7 @@ Conf_Dir="$Server_Dir/conf"
 Temp_Dir="$Server_Dir/temp"
 Log_Dir="$Server_Dir/logs"
 URL=${CLASH_URL}
+SECRET=${SECRET}
 
 # 自定义action函数，实现通用action功能
 success() {
@@ -50,52 +51,6 @@ if_success() {
   fi
 }
 
-# 临时取消环境变量
-unset http_proxy
-unset https_proxy
-unset no_proxy
-
-# 检查url是否有效
-echo -e '\n正在检测订阅地址...'
-Text1="Clash订阅地址可访问！"
-Text2="Clash订阅地址不可访问！"
-for i in {1..10}
-do
-        curl -o /dev/null -s -m 10 --connect-timeout 10 -w %{http_code} $URL | grep '[23][0-9][0-9]' &>/dev/null
-        ReturnStatus=$?
-        if [ $ReturnStatus -eq 0 ]; then
-                break
-        else
-                continue
-        fi
-done
-if_success $Text1 $Text2 $ReturnStatus
-
-# 拉取更新config.yml文件
-echo -e '\n正在下载Clash配置文件...'
-Text3="配置文件config.yaml下载成功！"
-Text4="配置文件config.yaml下载失败，退出启动！"
-for i in {1..10}
-do
-        wget -q -O $Temp_Dir/clash.yaml $URL
-        #curl -s -o $Temp_Dir/clash.yaml $URL
-	ReturnStatus=$?
-        if [ $ReturnStatus -eq 0 ]; then
-                break
-        else
-                continue
-        fi
-done
-if_success $Text3 $Text4 $ReturnStatus
-
-# 取出代理相关配置 
-sed -n '/^proxies:/,$p' $Temp_Dir/clash.yaml > $Temp_Dir/proxy.txt
-
-# 合并形成新的config.yaml
-cat $Temp_Dir/templete_config.yaml > $Temp_Dir/config.yaml
-cat $Temp_Dir/proxy.txt >> $Temp_Dir/config.yaml
-\cp $Temp_Dir/config.yaml $Conf_Dir/
-
 # Configure Clash Dashboard
 Work_Dir=$(cd $(dirname $0); pwd)
 Dashboard_Dir="${Work_Dir}/dashboard/public"
@@ -115,6 +70,15 @@ else
 	exit 1
 fi
 
+# check if clash is running
+# check api on http://127.0.0.1:9090/ see if it returns {"hello":"clash"}
+curl -X GET -H "Authorization: Bearer ${SECRET}" -s -m 10 --connect-timeout 10 -w %{http_code} "http://127.0.0.1:9090" | grep 'hello' &>/dev/null
+ReturnStatus=$?
+if [ $ReturnStatus -eq 0 ]; then
+        echo -e "\n\033[31m[×]\033[0m Service is already running, run ./shutdown.sh first\n"
+        exit 1
+fi
+
 # 启动Clash服务
 echo -e '\n正在启动Clash服务...'
 Text5="服务启动成功！"
@@ -132,9 +96,16 @@ else
 	exit 1
 fi
 
+# get ip of the wsl2
+if [[ $CpuArch =~ "aarch64" ]]; then
+        IP=`ip addr show eth0 | grep -Po "(?<=inet ).*(?=/)"`
+else
+        IP=`ip addr show eth0 | grep -Po "(?<=inet ).*(?=/)"`
+fi
+
 # Output Dashboard access address and Secret
 echo ''
-echo -e "Clash Dashboard 访问地址：http://IP:9090/ui"
+echo -e "Clash Dashboard 访问地址：http://${IP}:9090/ui"
 echo -e "Secret：${Secret}"
 echo ''
 

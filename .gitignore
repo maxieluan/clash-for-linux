@@ -1,0 +1,6 @@
+temp/clash.yaml
+temp/config.yaml
+temp/proxy.txt
+.env
+conf/cache.db
+conf/config.yaml
