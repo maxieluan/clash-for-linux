@@ -113,8 +113,8 @@ echo ''
 cat>/etc/profile.d/clash.sh<<EOF
 # 开启系统代理
 function proxy_on() {
-	export http_proxy=http://127.0.0.1:7891
-	export https_proxy=http://127.0.0.1:7891
+	export http_proxy=socks5://127.0.0.1:7891
+	export https_proxy=socks5://127.0.0.1:7891
 	export no_proxy=127.0.0.1,localhost
 	echo -e "\033[32m[√] 已开启代理\033[0m"
 }
