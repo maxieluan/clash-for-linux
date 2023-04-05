@@ -24,3 +24,7 @@ export SECRET=''
 
 ## untrack file.
 一些数据不应该被同步在git上，所以在新clone的repo中，需要run `untrack.sh`. 
+
+## 最新遇到的一些问题：
+1. 设置port不成功，可以设置成任何值，只要不是7890，不知道clash binary里做了什么，总之只要patch成7890就自动归零，所以就用7891吧
+2. 当mode设置成global的时候，修改代理时要去最后一个selector：GLOBAL
