@@ -28,5 +28,5 @@ export SECRET=''
 ## 最新遇到的一些问题：
 1. 设置port不成功，可以设置成任何值，只要不是7890，不知道clash binary里做了什么，总之只要patch成7890就自动归零，所以就用7891吧
 2. 当mode设置成global的时候，修改代理时要去最后一个selector：GLOBAL，不要在前面傻傻地修改然后奇怪为什么不好用
-3. 不要直接连光猫，要连路由器，不然dns会经常出现问题
+3. 不要直接连光猫，要连路由器，设置windows相应interface的dns
 4. 也请注意git或npm的proxy，可能会和proxychain chain起来，导致一系列奇怪的问题
